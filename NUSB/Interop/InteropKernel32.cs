@@ -8,6 +8,9 @@ using Microsoft.Win32.SafeHandles;
 
 namespace NUSB.Interop
 {
+    /// <summary>
+    /// Contains the Windows interop functions related to kernel32.dll
+    /// </summary>
     internal sealed class InteropKernel32
     {
         internal const uint OVERLAPPED = 0x40000000;
