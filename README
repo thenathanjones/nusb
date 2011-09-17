@@ -1,0 +1,8 @@
+Why do this?
+The need arose to interact with a USB build light, and just as I was a couple of years ago, there isn't a neat way to do it on Windows.  
+
+Surely this exists?
+The existing libraries I've found make you deal with the Win32 API calls at too low a level, and I'd rather not go down the path of libusb.  Instead of trying to make Windows more UNIX-y, this library is a way to use Windows itself to interact at a low level with USB devices.
+
+How do I use this?
+I'll put some examples up as things progress, for now you'll just have to work it out yourself.
