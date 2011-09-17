@@ -7,7 +7,7 @@ using NUSB.Interop;
 
 namespace NUSB.Manager
 {
-    public class DeviceManager : IDeviceManager
+    public sealed class DeviceManager : IDeviceManager
     {
         public IEnumerable<string> FindDevices(Guid guid, string vendorId, string productId)
         {

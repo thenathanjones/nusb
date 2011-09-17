@@ -11,7 +11,8 @@ namespace NUSB.Controller
         /// Configure the controller with the USB device at the specified path and attempt to connect
         /// </summary>
         /// <param name="pathToDevice">The path to the device in Windows</param>
-        void Initialise(string pathToDevice);
+        /// <param name="separateHandles">Whether to use separate handles for reading and writing to device</param>
+        void Initialise(string pathToDevice, bool separateHandles);
 
         /// <summary>
         /// Connect to handle to the attached USB device
