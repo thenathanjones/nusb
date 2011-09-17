@@ -214,7 +214,6 @@ namespace NUSB.Controller
             }
             finally
             {
-                // clean up
                 Overlapped.Free(outNativeOverlapped);
             }
         }
@@ -231,17 +230,92 @@ namespace NUSB.Controller
 
         public void WriteClear(uint controlCode)
         {
-            throw new NotImplementedException();
+            // cancel pending operations
+            lock (_cancelIOLock)
+            {
+                InteropKernel32.CancelIo(_readHandle);
+                InteropKernel32.CancelIo(_writeHandle);
+            }
+
+            WriteControl(controlCode, null);
         }
 
-        public void ReadControl(uint controlCode, byte[] writeBuffer, byte[] readBuffer)
+        public unsafe void ReadControl(uint controlCode, byte[] writeBuffer, byte[] readBuffer)
         {
-            throw new NotImplementedException();
+            uint bytesReturned = 0;
+
+            fixed (byte* inBuffer = writeBuffer)
+            {
+                fixed (byte* outBuffer = readBuffer)
+                {
+                    var success = false;
+                    try
+                    {
+                        success = InteropKernel32.DeviceIoControl(_readHandle,
+                                                                  controlCode,
+                                                                  inBuffer,
+                                                                  writeBuffer == null ? 0 : (uint)writeBuffer.Length,
+                                                                  outBuffer,
+                                                                  readBuffer == null ? 0 : (uint)readBuffer.Length,
+                                                                  ref bytesReturned,
+                                                                  null);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        throw new Exception("File handle already closed");
+                    }
+
+                    // if we weren't successful, retrieve the error
+                    if (!success) { HandleIOError(false); }
+                }
+            }
         }
 
-        public void ReadControlOverlapped(uint controlCode, byte[] writeBuffer, byte[] readBuffer)
+        public unsafe void ReadControlOverlapped(uint controlCode, byte[] writeBuffer, byte[] readBuffer)
         {
-            throw new NotImplementedException();
+            var completedEvent = new ManualResetEvent(false);
+            uint bytesReturned = 0;
+            var inOverlapped = new Overlapped();
+            inOverlapped.EventHandleIntPtr = completedEvent.SafeWaitHandle.DangerousGetHandle();
+            NativeOverlapped* inNativeOverlapped = inOverlapped.Pack(null, null);
+
+            try
+            {
+                fixed (byte* inBuffer = writeBuffer)
+                {
+                    fixed (byte* outBuffer = readBuffer)
+                    {
+                        var success = false;
+                        try
+                        {
+                            success = InteropKernel32.DeviceIoControl(_readHandle,
+                                                                      controlCode,
+                                                                      inBuffer,
+                                                                      writeBuffer == null ? 0 : (uint) writeBuffer.Length,
+                                                                      outBuffer,
+                                                                      readBuffer == null ? 0 : (uint) readBuffer.Length,
+                                                                      ref bytesReturned,
+                                                                      inNativeOverlapped);
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            throw new Exception("File handle already closed");
+                        }
+
+                        // retrieve the error on failures
+                        if (!success)
+                        {
+                            HandleIOError(true);
+
+                            CancelOverlapped(_readHandle, completedEvent);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                Overlapped.Free(inNativeOverlapped);
+            }
         }
 
         public void Write(byte[] writeBuffer)
