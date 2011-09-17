@@ -8,14 +8,20 @@ namespace NUSB.Controller
     public interface IUSBController : IDisposable
     {
         /// <summary>
-        /// Returns all of the USB devices that match the given criteria
+        /// Configure the controller with the USB device at the specified path and attempt to connect
         /// </summary>
-        /// <param name="guid">Guid of the USB device</param>
-        /// <param name="vendorId">Vendor ID of the USB device i.e. 0x0fc5</param>
-        /// <param name="productId">Product ID of the USB device i.e. 0x0fc5</param>
-        /// <param name="deviceSerial">Optional. Unique identifier for a specific device</param>
-        /// <returns>Path to the devices matching the criteria</returns>
-        IEnumerable<string> FindDevices(Guid guid, string vendorId, string productId, string deviceSerial);
+        /// <param name="pathToDevice">The path to the device in Windows</param>
+        void Initialise(string pathToDevice);
+
+        /// <summary>
+        /// Connect to handle to the attached USB device
+        /// </summary>
+        void Connect();
+
+        /// <summary>
+        /// Disconnect the handle to the attached USB device
+        /// </summary>
+        void Disconnect();
 
         /// <summary>
         /// Synchronously write an IO control message to the attached USB device
@@ -41,16 +47,40 @@ namespace NUSB.Controller
         /// Synchronously read an IO control message from the attached USB device
         /// </summary>
         /// <param name="controlCode">IOCTL code to use</param>
-        /// <param name="inputBuffer">Buffer containing the data for the operation</param>
-        /// <param name="outputBuffer">Buffer to receive the returned data</param>
-        void ReadControl(uint controlCode, byte[] inputBuffer, byte[] outputBuffer);
+        /// <param name="writeBuffer">Buffer containing the data for the operation</param>
+        /// <param name="readBuffer">Buffer to receive the returned data</param>
+        void ReadControl(uint controlCode, byte[] writeBuffer, byte[] readBuffer);
 
         /// <summary>
         /// Asynchronously read an IO control message from the attached USB device
         /// </summary>
         /// <param name="controlCode">IOCTL code to use</param>
-        /// <param name="inputBuffer">Buffer containing the data for the operation</param>
-        /// <param name="outputBuffer">Buffer to receive the returned data</param>
-        void ReadControlOverlapped(uint controlCode, byte[] inputBuffer, byte[] outputBuffer);
+        /// <param name="writeBuffer">Buffer containing the data for the operation</param>
+        /// <param name="readBuffer">Buffer to receive the returned data</param>
+        void ReadControlOverlapped(uint controlCode, byte[] writeBuffer, byte[] readBuffer);
+
+        /// <summary>
+        /// Synchronously write data to the attached USB device
+        /// </summary>
+        /// <param name="writeBuffer">Buffer containing the data for the operation</param>
+        void Write(byte[] writeBuffer);
+
+        /// <summary>
+        /// Asynchronously write data to the attached USB device
+        /// </summary>
+        /// <param name="writeBuffer">Buffer containing the data for the operation</param>
+        void WriteOverlapped(byte[] writeBuffer);
+
+        /// <summary>
+        /// Synchronously read data from the attached USB device
+        /// </summary>
+        /// <param name="readBuffer">Buffer to receive the returned data</param>
+        void Read(byte[] readBuffer);
+
+        /// <summary>
+        /// Asynchronously read data from the attached USB device
+        /// </summary>
+        /// <param name="readBuffer">Buffer to receive the returned data</param>
+        void ReadOverlapped(byte[] readBuffer);
     }
 }
