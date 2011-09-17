@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using Microsoft.Win32.SafeHandles;
 using NUSB.Interop;
 
@@ -130,17 +132,101 @@ namespace NUSB.Controller
 
         public void Disconnect()
         {
-            throw new NotImplementedException();
+            CleanupHandles();
         }
 
-        public void WriteControl(uint controlCode, byte[] writeBuffer)
+        public unsafe void WriteControl(uint controlCode, byte[] writeBuffer)
         {
-            throw new NotImplementedException();
+            uint bytesReturned = 0;
+
+            fixed (byte* inBuffer = writeBuffer)
+            {
+                var success = false;
+                try
+                {
+                    success = InteropKernel32.DeviceIoControl(_writeHandle,
+                                                              controlCode,
+                                                              inBuffer,
+                                                              writeBuffer == null ? 0 : (uint)writeBuffer.Length,
+                                                              null,
+                                                              0,
+                                                              ref bytesReturned,
+                                                              null);
+                }
+                catch (ObjectDisposedException)
+                {
+                    throw new Exception("File handle already closed");
+                }
+
+                // retrieve the error on failures
+                if (!success) { HandleIOError(false); }
+            }
         }
 
-        public void WriteControlOverlapped(uint controlCode, byte[] writeBuffer)
+        private void HandleIOError(bool ignoreOverlapped)
         {
-            throw new NotImplementedException();
+            var lastWin32Error = Marshal.GetLastWin32Error();
+
+            // if the error is something other than pending IO (i.e. because we're using overlapped)
+            if (!ignoreOverlapped || lastWin32Error != (int)InteropCommon.Win32Errors.ERROR_IO_PENDING)
+            {
+                throw new Exception("Unknown Win32 Error occurred: " + lastWin32Error);
+            }
+        }
+
+        public unsafe void WriteControlOverlapped(uint controlCode, byte[] writeBuffer)
+        {
+            var completedEvent = new ManualResetEvent(false);
+            uint bytesReturned = 0;
+            var outOverlapped = new Overlapped();
+            outOverlapped.EventHandleIntPtr = completedEvent.SafeWaitHandle.DangerousGetHandle();
+            NativeOverlapped* outNativeOverlapped = outOverlapped.Pack(null, null);
+
+            try
+            {
+                fixed (byte* inBuffer = writeBuffer)
+                {
+                    var success = false;
+                    try
+                    {
+                        success = InteropKernel32.DeviceIoControl(_writeHandle,
+                                                                  controlCode,
+                                                                  inBuffer,
+                                                                  writeBuffer == null ? 0 : (uint)writeBuffer.Length,
+                                                                  null,
+                                                                  0,
+                                                                  ref bytesReturned,
+                                                                  outNativeOverlapped);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        throw new Exception("File handle already closed");
+                    }
+
+                    // retrieve the error on failures
+                    if (!success)
+                    {
+                        HandleIOError(true);
+
+                        CancelOverlapped(_writeHandle, completedEvent);
+                    }
+                }
+            }
+            finally
+            {
+                // clean up
+                Overlapped.Free(outNativeOverlapped);
+            }
+        }
+
+        private void CancelOverlapped(SafeFileHandle handle, ManualResetEvent completedEvent)
+        {
+            lock (_cancelIOLock)
+            {
+                // wait for it to complete
+                if (!completedEvent.WaitOne(OVERLAPPED_TIMEOUT) && handle != null && !handle.IsClosed && !handle.IsInvalid)
+                    InteropKernel32.CancelIo(handle);
+            }
         }
 
         public void WriteClear(uint controlCode)
@@ -177,5 +263,7 @@ namespace NUSB.Controller
         {
             throw new NotImplementedException();
         }
+
+        private const int OVERLAPPED_TIMEOUT = 2000;
     }
 }
