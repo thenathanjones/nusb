@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace NUSB
+namespace NUSB.Manager
 {
-    interface IDeviceManager
+    public interface IDeviceManager
     {
         /// <summary>
         /// Returns all of the USB devices that match the given criteria

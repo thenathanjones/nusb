@@ -7,13 +7,13 @@ using NUSB.Interop;
 
 namespace NUSB.Manager
 {
-    class DeviceManager : IDeviceManager
+    public class DeviceManager : IDeviceManager
     {
         public IEnumerable<string> FindDevices(Guid guid, string vendorId, string productId)
         {
-            IntPtr deviceInfoSet = IntPtr.Zero;
-            IntPtr deviceDetailData = IntPtr.Zero;
-            IList<string> devices = new List<string>();
+            var deviceInfoSet = IntPtr.Zero;
+            var deviceDetailData = IntPtr.Zero;
+            var devices = new List<string>();
 
             try
             {
@@ -81,8 +81,8 @@ namespace NUSB.Manager
                 var devicePathName = Marshal.PtrToStringAuto(pDevicePath);
 
                 // append underscore to we match the correct thing
-                var vendorIdString = "vid_" + vendorId;
-                var productIdString = "pid_" + productId;
+                var vendorIdString = ("vid_" + vendorId).ToLower();
+                var productIdString = ("pid_" + productId).ToLower();
                 if (devicePathName != null &&
                     devicePathName.Contains(vendorIdString) &&
                     devicePathName.Contains(productIdString))
