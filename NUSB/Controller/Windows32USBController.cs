@@ -9,7 +9,7 @@ using NUSB.Interop;
 
 namespace NUSB.Controller
 {
-    public sealed class Kernel32USBController : IUSBController
+    public sealed class Windows32USBController : IUSBController
     {
         private string _devicePath;
         private bool _separateHandles;
