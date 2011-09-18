@@ -448,6 +448,26 @@ namespace NUSB.Controller
             }
         }
 
+        public unsafe void HidSetFeature(byte[] reportBuffer)
+        {
+            fixed (byte* inBuffer = reportBuffer)
+            {
+                var success = false;
+                try
+                {
+                    success = InteropHID.HidD_SetFeature(_writeHandle,
+                                                         inBuffer,
+                                                         (uint)reportBuffer.Length);
+                }
+                catch (ObjectDisposedException)
+                {
+                    throw new Exception("File handle already closed");
+                }
+
+                if (!success) { HandleIOError(false); }
+            }
+        }
+
         private const int OVERLAPPED_TIMEOUT = 2000;
     }
 }

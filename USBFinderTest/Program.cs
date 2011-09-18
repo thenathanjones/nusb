@@ -35,9 +35,17 @@ namespace USBFinderTest
             controlBytes[2] = 0x02; // This is the LED byte
             controlBytes[3] = 0xFF;
 
-            controller.WriteControlOverlapped(0x03, controlBytes);
+            controller.HidSetFeature(controlBytes);
 
             Console.ReadKey();
+
+            controlBytes[2] = 0x01;
+            controller.HidSetFeature(controlBytes);
+
+            Console.ReadKey();
+
+            controlBytes[2] = 0x00;
+            controller.HidSetFeature(controlBytes);
         }
     }
 }

@@ -83,5 +83,11 @@ namespace NUSB.Controller
         /// </summary>
         /// <param name="readBuffer">Buffer to receive the returned data</param>
         void ReadOverlapped(byte[] readBuffer);
+
+        /// <summary>
+        /// Send a feature report to the attached USB device
+        /// </summary>
+        /// <param name="reportBuffer">Buffer containing the report</param>
+        void HidSetFeature(byte[] reportBuffer);
     }
 }

@@ -42,8 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller\IUSBController.cs" />
-    <Compile Include="Controller\Kernel32USBController.cs" />
+    <Compile Include="Controller\Windows32USBController.cs" />
     <Compile Include="Interop\DeviceGuid.cs" />
+    <Compile Include="Interop\InteropHID.cs" />
     <Compile Include="Manager\DeviceManager.cs" />
     <Compile Include="Manager\IDeviceManager.cs" />
     <Compile Include="Interop\InteropCommon.cs" />
