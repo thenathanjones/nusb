@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>0.1</version>
+    <title>NUSB</title>
+    <authors>Nathan Jones</authors>
+    <owners>Nathan Jones</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/thenathanjones/nusb</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>.NET library for low-level comms with USB devices on Windows</description>
+    <copyright>Copyright 2011</copyright>
+    <tags>usb build light ci</tags>
+  </metadata>
+</package>

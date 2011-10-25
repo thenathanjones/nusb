@@ -1,2 +1,4 @@
-*/obj
-*/bin
+*/obj*
+*/bin*
+*packages/
+*Resharper*

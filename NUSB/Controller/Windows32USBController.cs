@@ -9,6 +9,9 @@ using NUSB.Interop;
 
 namespace NUSB.Controller
 {
+    /// <summary>
+    /// USB Controller that uses the Windows API to interact with USB devices
+    /// </summary>
     public sealed class Windows32USBController : IUSBController
     {
         private string _devicePath;
