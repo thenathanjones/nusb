@@ -8,7 +8,7 @@ The need arose to interact with a USB build light, and just as I was a couple of
 
 Surely this exists?
 ===================
-The existing libraries I've found make you deal with the Windows API calls at too low a level, and I'd rather not go down the path of libusb.  Instead of trying to make Windows more UNIX-y, this library is a way to use Windows itself to interact at a low level with USB devices.
+The existing libraries I've found make you deal with the Windows API calls at too low a level, or make you go down the path of libusb which I'd rather not do.  Instead of trying to make Windows more UNIX-y, this library is a way to use Windows itself to interact at a low level with USB devices.
 
 How do I use this?
 ==================
