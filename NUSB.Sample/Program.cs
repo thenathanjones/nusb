@@ -74,6 +74,7 @@ namespace USBFinderTest
             Yellow = 0x03,
             Aqua = 0x05,
             Magenta = 0x06,
+            White = 0x07,
             Off = 0x00
         }
     }
